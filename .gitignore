@@ -1,0 +1,25 @@
+# Local data and databases
+/data/
+*.csv
+*.zip
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Python and generated artifacts
+.venv/
+__pycache__/
+*.py[cod]
+/models/
+/reports/generated/
+*.joblib
+*.pkl
+
+# Credentials and local settings
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+.DS_Store
