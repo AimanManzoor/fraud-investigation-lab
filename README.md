@@ -10,7 +10,7 @@ Built toward an interactive Streamlit application using Python and SQLite.
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
 - SQLite ingestion and an initial SQL data-quality report are implemented.
-- Six ingestion regression tests pass.
+- Nine regression tests pass: six ingestion tests and three numeric-validation tests.
 - Numeric validation, duplicate assessment, detection, and the app remain planned.
 - No predictive performance results have been established yet.
 
@@ -92,3 +92,14 @@ human review workflows, interactive analytics, and reproducible evaluation.
 - Initial checks cover record counts, blanks, labels, and transaction types.
 - Numeric validation and duplicate assessment remain pending.
 - Local data, databases, and generated reports are excluded from Git.
+
+## Numeric validation helper
+
+`src/validation.py` classifies numeric text without changing raw values.
+It checks missing values, numeric format, finiteness, negative values,
+positive integer steps, and supported numeric ranges.
+
+The helper has been tested on controlled examples. Applying it to the
+full dataset and creating a typed, cleaned layer remain pending.
+
+Run all tests: `python3 -m unittest discover -s tests -t . -v`
