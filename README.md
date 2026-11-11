@@ -9,7 +9,9 @@ Built toward an interactive Streamlit application using Python and SQLite.
 
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
-- SQLite ingestion, cleaning, detection, evaluation, and the app are planned.
+- SQLite ingestion and an initial SQL data-quality report are implemented.
+- Six ingestion regression tests pass.
+- Numeric validation, duplicate assessment, detection, and the app remain planned.
 - No predictive performance results have been established yet.
 
 ## Problem
@@ -69,15 +71,24 @@ and SQLite structure. REA integration is optional and not implemented yet.
 ## Roadmap
 
 - [x] Download dataset and verify expected columns
-- [ ] Reproducible SQLite ingestion
+- [x] Reproducible SQLite ingestion
 - [ ] SQL data-quality report and documented cleaning
 - [ ] Baseline alert rules
 - [ ] ML baseline and chronological evaluation
 - [ ] Interactive Streamlit app
-- [ ] Automated regression tests
+- [x] Automated ingestion regression tests
 - [ ] Hosted demo and final evaluation report
 
 ## Learning goals
 
 SQL data engineering, data-quality validation, imbalanced classification,
 human review workflows, interactive analytics, and reproducible evaluation.
+
+## Run ingestion and tests
+
+- Import once: `python3 src/ingest.py`
+- Test: `python3 -m unittest discover -s tests -t . -p 'test_ingest.py' -v`
+- Raw values are preserved; existing databases are not overwritten.
+- Initial checks cover record counts, blanks, labels, and transaction types.
+- Numeric validation and duplicate assessment remain pending.
+- Local data, databases, and generated reports are excluded from Git.
