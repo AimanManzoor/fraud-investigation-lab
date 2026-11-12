@@ -10,9 +10,10 @@ Built toward an interactive Streamlit application using Python and SQLite.
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
 - SQLite ingestion and an initial SQL data-quality report are implemented.
-- Fourteen regression tests pass: six ingestion, three validation, and five numeric-audit tests.
+- Twenty-five regression tests pass across ingestion, validation, auditing, money conversion, and typed-data construction.
 - Full-dataset numeric audit completed: 6,362,620 records and zero invalid cells under the implemented rules.
-- Monetary precision, duplicate assessment, typed data, detection, and the app remain pending.
+- Typed transaction data is implemented with exact amount conversion at scale 100.
+- Duplicate assessment, balance-field precision, detection, and the app remain pending.
 - No predictive performance results have been established yet.
 
 ## Problem
@@ -112,3 +113,17 @@ Run all tests: `python3 -m unittest discover -s tests -t . -v`
 - Observed result: 6,362,620 records; zero invalid cells under the current rules.
 - Generated report: `reports/generated/numeric_report.json` (not committed).
 - Passing these rules does not establish overall data quality or model readiness.
+
+## Typed transaction layer
+
+- Builder: `src/build_typed.py`
+- Exact amount conversion: `src/money.py`
+- Build command: `python3 -m src.build_typed`
+- Observed source and output counts: 6,362,620 records each.
+- Amounts are stored as integer units at scale 100; unsupported precision is rejected.
+- Original record IDs and duplicate candidates are preserved.
+- Raw data remains unchanged; balances remain in the raw database.
+- Query indexes cover time step and transaction type.
+- Existing output databases are not overwritten.
+- Fraud labels and legacy flags support evaluation, not prediction inputs.
+- Local databases and generated reports are excluded from Git.
