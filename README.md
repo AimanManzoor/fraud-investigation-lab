@@ -10,8 +10,9 @@ Built toward an interactive Streamlit application using Python and SQLite.
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
 - SQLite ingestion and an initial SQL data-quality report are implemented.
-- Nine regression tests pass: six ingestion tests and three numeric-validation tests.
-- Numeric validation, duplicate assessment, detection, and the app remain planned.
+- Fourteen regression tests pass: six ingestion, three validation, and five numeric-audit tests.
+- Full-dataset numeric audit completed: 6,362,620 records and zero invalid cells under the implemented rules.
+- Monetary precision, duplicate assessment, typed data, detection, and the app remain pending.
 - No predictive performance results have been established yet.
 
 ## Problem
@@ -90,7 +91,7 @@ human review workflows, interactive analytics, and reproducible evaluation.
 - Test: `python3 -m unittest discover -s tests -t . -p 'test_ingest.py' -v`
 - Raw values are preserved; existing databases are not overwritten.
 - Initial checks cover record counts, blanks, labels, and transaction types.
-- Numeric validation and duplicate assessment remain pending.
+- Monetary precision, duplicate assessment and typed-layer creation remain pending.
 - Local data, databases, and generated reports are excluded from Git.
 
 ## Numeric validation helper
@@ -99,7 +100,15 @@ human review workflows, interactive analytics, and reproducible evaluation.
 It checks missing values, numeric format, finiteness, negative values,
 positive integer steps, and supported numeric ranges.
 
-The helper has been tested on controlled examples. Applying it to the
-full dataset and creating a typed, cleaned layer remain pending.
+The helper has been tested on controlled examples and applied to the full
+dataset. Creating a typed, cleaned layer remains pending.
 
 Run all tests: `python3 -m unittest discover -s tests -t . -v`
+
+## Full-dataset numeric audit
+
+- Run: `python3 -m src.audit_numeric`
+- Checks step, amount, and four balance columns using a read-only connection.
+- Observed result: 6,362,620 records; zero invalid cells under the current rules.
+- Generated report: `reports/generated/numeric_report.json` (not committed).
+- Passing these rules does not establish overall data quality or model readiness.
