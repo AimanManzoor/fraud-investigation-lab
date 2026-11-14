@@ -10,7 +10,7 @@ Built toward an interactive Streamlit application using Python and SQLite.
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
 - SQLite ingestion and an initial SQL data-quality report are implemented.
-- Thirty-six regression tests cover ingestion, validation, auditing, exact money conversion, typed data, explorer queries, and Streamlit interactions on controlled fixtures.
+- Forty-two regression tests cover data processing, explorer queries, demo export, and Streamlit interactions on controlled fixtures.
 - Full-dataset numeric audit completed: 6,362,620 records and zero invalid cells under the implemented rules.
 - Typed transaction data is implemented with exact amount conversion at scale 100.
 - A read-only Streamlit explorer is implemented and tested on controlled fixtures. Full-dataset UI verification is pending.
@@ -171,3 +171,35 @@ This prototype does not predict fraud, calculate risk scores, store analyst
 decisions, or implement an autonomous agent. Dataset fraud labels are
 simulated outcomes; the legacy rule flag is a separate historical field.
 Raw data and local databases remain excluded from Git.
+
+
+## Shareable demo mode
+
+The app offers Demo sample and Full local database sources.
+On a fresh machine without the full database, it defaults to Demo sample.
+
+- Demo input: `demo/transactions.json`, a curated PaySim subset.
+- Export once locally: `.venv/bin/python -m src.demo`
+- Existing sample files are not overwritten.
+- Up to 500 earliest records per type, plus up to 100 fraud-labeled
+  and 100 legacy-flagged cases, with unique record IDs.
+- The sample is not representative. Its fraud rate is not a population estimate.
+- Original record IDs and exact scale-100 amounts are preserved.
+- Full local databases remain excluded from Git.
+- Demo queries build a small temporary SQLite database and reuse the
+  same read-only explorer query layer.
+- Changing sources clears previous results.
+- Sample attribution and data-license details appear in demo/README.md.
+
+The six new tests cover reproducibility, source preservation, querying
+without the full database, overwrite protection, missing inputs, invalid
+sample values, and source switching in the UI.
+
+Observed full-data aggregate check: 6,362,620 transactions,
+8,213 dataset fraud labels, and 16 legacy flags.
+This check does not establish model performance.
+
+Hosting status: deployment and live-URL verification are pending.
+For Streamlit Community Cloud, select this repository, branch main,
+and entrypoint app.py. A hosted demo does not require the full local
+database because the curated JSON sample is included in the repository.

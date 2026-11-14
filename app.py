@@ -5,14 +5,40 @@ from pathlib import Path
 import streamlit as st
 
 from src.explorer import TYPES, explore
+from src.demo import NOTICE, explore_demo
 
 DEFAULT_DATABASE = Path(__file__).resolve().parent / "data/fraud_typed.db"
 
 
-def main(database=DEFAULT_DATABASE):
+def main(database=None):
     st.set_page_config(page_title="Fraud Investigation Lab", layout="wide")
     st.title("Fraud Investigation Lab")
     st.caption("Transaction explorer · synthetic PaySim data")
+
+    query = explore
+    if database is None:
+        mode = st.radio(
+            "Data source",
+            ("Demo sample", "Full local database"),
+            index=1 if DEFAULT_DATABASE.is_file() else 0,
+        )
+        if mode == "Demo sample":
+            database = DEFAULT_DATABASE.parents[1] / "demo/transactions.json"
+            query = explore_demo
+            st.warning(NOTICE)
+        else:
+            database = DEFAULT_DATABASE
+            st.caption("Full local database selected; the demo sample is not used.")
+
+    database = Path(database)
+    source_key = (
+        str(database.resolve()),
+        database.stat().st_mtime_ns if database.is_file() else None,
+    )
+    if st.session_state.get("explorer_source") != source_key:
+        st.session_state.pop("explorer_result", None)
+        st.session_state["explorer_source"] = source_key
+
 
     st.info(
         "Dataset fraud labels and legacy rule flags are separate historical fields. "
@@ -44,7 +70,7 @@ def main(database=DEFAULT_DATABASE):
     if submitted:
         try:
             with st.spinner("Querying the local database..."):
-                result = explore(
+                result = query(
                     database,
                     kind=None if kind == "All" else kind,
                     step_min=step_min,
