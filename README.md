@@ -3,7 +3,84 @@
 An ongoing portfolio project for exploring suspicious transactions,
 evaluating fraud-alert methods, and supporting evidence-based human review.
 
-Built toward an interactive Streamlit application using Python and SQLite.
+Interactive transaction exploration using Streamlit, Python, and SQLite.
+
+
+## Try the interactive demo
+
+The repository includes a small demo dataset. You do **not** need the full
+PaySim CSV, a local database, API keys, or an LLM account to try it.
+
+### Run locally (macOS or Linux)
+
+Use Python 3.12, the version used for validation. In Terminal:
+
+```bash
+git clone https://github.com/AimanManzoor/fraud-investigation-lab.git
+cd fraud-investigation-lab
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m streamlit run app.py --server.address 127.0.0.1
+```
+
+On Windows PowerShell, create the environment with `py -3.12 -m venv .venv`.
+Then run `.venv\Scripts\python.exe -m pip install -r requirements.txt` and
+`.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1`.
+
+Open the local URL printed in Terminal, usually http://127.0.0.1:8501.
+Keep Terminal running while using the app; press **Control+C** to stop it.
+This local address works on your computer. Other visitors must run their own
+copy or use a separately deployed hosted demo.
+
+### What to do in the app
+
+1. Choose **Demo sample** under **Data source**.
+2. Click **Apply filters** to load results.
+3. Filter transaction type, simulation time step, amount, dataset fraud label,
+   or legacy rule flag, then click **Apply filters** again.
+4. Select a displayed **Record ID** beneath the table to inspect its details.
+
+The included sample has **2,579 transactions**, **116 dataset fraud labels**,
+and **16 legacy flags**. These default totals apply to the included snapshot.
+It deliberately includes additional fraud and flagged examples. It is
+**not representative of the full dataset**; its label proportions must not
+be used to estimate population fraud rates or model performance.
+
+Metrics and the chart cover all matching records in the **selected source**.
+The table displays only the first 200 matches in record-ID order.
+Amounts use dataset units with exact scale-100 storage, without assuming a
+currency. Steps are simulation hours, not calendar dates.
+
+With no full local database, the app defaults to Demo sample. If an existing
+`data/fraud_typed.db` is present, it defaults to Full local database; select
+Demo sample explicitly to try the shareable version. Switching sources clears
+previous results. Full-data preparation is documented below.
+
+### Run the tests
+
+After installing dependencies and activating the environment:
+
+```bash
+python -m unittest discover -s tests -t . -v
+```
+
+The suite has 42 tests, using controlled temporary databases. An additional
+Streamlit AppTest check of the committed demo snapshot successfully displayed
+2,579 / 116 / 16 with no full local database.
+
+### Troubleshooting
+
+- **Demo sample missing:** confirm `demo/transactions.json` is present and
+  that you cloned the complete repository.
+- **Typed database missing:** choose Demo sample, or prepare the full local
+  typed database using the ingestion and typed-layer instructions below.
+- **Filters appear unchanged:** click Apply filters; results reflect the last
+  submitted filter values.
+- **Amount precision error:** enter an amount exactly representable at scale
+  100, such as `12.34`. Values such as `0.001` are rejected without rounding.
+- **No matching transactions:** broaden the filters. Demo results reflect
+  the curated sample, not all 6.36 million source records.
 
 ## Current status
 
@@ -13,7 +90,8 @@ Built toward an interactive Streamlit application using Python and SQLite.
 - Forty-two regression tests cover data processing, explorer queries, demo export, and Streamlit interactions on controlled fixtures.
 - Full-dataset numeric audit completed: 6,362,620 records and zero invalid cells under the implemented rules.
 - Typed transaction data is implemented with exact amount conversion at scale 100.
-- A read-only Streamlit explorer is implemented and tested on controlled fixtures. Full-dataset UI verification is pending.
+- The read-only Streamlit explorer supports the full local database and a committed demo sample.
+- The committed demo snapshot runs without the full database. The full-data aggregate check was observed locally; further full-data UI verification and benchmarking remain pending.
 - Duplicate assessment, balance-field precision, detection, analyst review, and deployment remain pending.
 - No predictive performance results have been established yet.
 
@@ -33,7 +111,7 @@ PaySim contains synthetic mobile-money transactions and simulated fraud labels.
 It does not represent validated production fraud-detection performance.
 
 The original CSV remains unchanged in data/raw/ and is excluded from Git.
-Dataset attribution and applicable usage terms will be documented.
+Sample attribution, adaptation details, and the data-license link are documented in [demo/README.md](demo/README.md).
 
 ## Planned workflow
 
@@ -44,9 +122,10 @@ Dataset attribution and applicable usage terms will be documented.
 5. Evaluate using chronological training, validation, and test periods.
 6. Build and deploy an interactive Streamlit investigation app.
 
-## Planned app features
+## App scope and planned extensions
 
-- Transaction filters for amount, type, time step, and risk score.
+- Implemented: filters for amount, type, simulation step, dataset fraud label, and legacy flag.
+- Planned: risk-score filtering once a detector is implemented and evaluated.
 - Charts showing transaction volumes and alert patterns.
 - Transaction details and available earlier account activity.
 - Explanations of the rules that triggered an alert.
@@ -75,11 +154,15 @@ and SQLite structure. REA integration is optional and not implemented yet.
 
 - [x] Download dataset and verify expected columns
 - [x] Reproducible SQLite ingestion
-- [ ] SQL data-quality report and documented cleaning
+- [x] Initial SQL quality report and full numeric audit
+- [x] Exact amount conversion and reconciled typed transaction layer
+- [ ] Duplicate assessment and balance-field audit
 - [ ] Baseline alert rules
 - [ ] ML baseline and chronological evaluation
 - [x] Local read-only Streamlit explorer tested on controlled fixtures
-- [ ] Full-dataset UI acceptance check
+- [x] Committed demo sample and source switching
+- [x] Demo verified without the full local database
+- [ ] Further full-dataset UI acceptance checks and benchmarking
 - [ ] Scoring and analyst review features
 - [x] Automated ingestion regression tests
 - [ ] Hosted demo and final evaluation report
@@ -154,7 +237,8 @@ Run from the repository root:
 4. Launch: `.venv/bin/python -m streamlit run app.py --server.address 127.0.0.1`
 
 Open the local URL printed by Streamlit. Press Control+C to stop the server.
-The app uses the existing typed database; no rebuild is required.
+Full local database mode uses the existing typed database; no rebuild is required.
+Demo sample mode works without that database.
 
 Click Apply filters to submit changes. Amounts use dataset units, without
 assuming a currency. Time steps are simulation hours, not calendar dates.
@@ -203,3 +287,40 @@ Hosting status: deployment and live-URL verification are pending.
 For Streamlit Community Cloud, select this repository, branch main,
 and entrypoint app.py. A hosted demo does not require the full local
 database because the curated JSON sample is included in the repository.
+
+## Deploy a shareable Streamlit app
+
+**Status: deployment and a verified live URL are still pending.** The code and
+demo data are available on GitHub; pushing code does not deploy the app.
+
+1. Sign in at https://share.streamlit.io/ and connect the GitHub account that
+   has access to the repository.
+2. Choose **Create app**, then the option to deploy an existing GitHub app.
+3. Enter these values in the deployment form:
+
+   | Field | Value |
+   |---|---|
+   | Repository | `AimanManzoor/fraud-investigation-lab` |
+   | Branch | `main` |
+   | Main file path | `app.py` |
+   | Python version (Advanced settings) | `3.12` |
+
+4. Deploy. Dependencies are declared in `requirements.txt`. No API keys or
+   application secrets are needed for this explorer.
+5. Open the assigned app URL, choose **Demo sample**, and click **Apply filters**.
+   With default filters, verify the 2,579 / 116 / 16 snapshot totals.
+6. Verify type and amount filters, record details, empty results, and the
+   precision-error message. Check that clearing/changing filters behaves as expected.
+7. Once the hosted app has been checked, add its actual URL to this README and
+   the repository **About → Website** field. Share that URL with visitors.
+
+The committed `demo/transactions.json` makes demo mode self-contained.
+The full local SQLite databases are excluded from Git and are not available
+to the deployed app. Selecting Full local database on the host will report
+a missing database unless one is supplied separately.
+
+The demo is a read-only exploration prototype. It provides no fraud predictions,
+production performance claims, or analyst decision storage.
+
+Deployment reference:
+[Streamlit Community Cloud documentation](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy).
