@@ -65,7 +65,7 @@ After installing dependencies and activating the environment:
 python -m unittest discover -s tests -t . -v
 ```
 
-The suite has 48 tests, using controlled temporary databases. An additional
+The suite has 57 tests, using controlled temporary databases. An additional
 Streamlit AppTest check of the committed demo snapshot successfully displayed
 2,579 / 116 / 16 with no full local database.
 
@@ -87,7 +87,7 @@ Streamlit AppTest check of the committed demo snapshot successfully displayed
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
 - SQLite ingestion and an initial SQL data-quality report are implemented.
-- Forty-eight regression tests cover data processing, explorer queries, demo export, and Streamlit interactions on controlled fixtures.
+- Fifty-seven regression tests cover data processing, explorer queries, demo export, and Streamlit interactions on controlled fixtures.
 - Full-dataset numeric audit completed: 6,362,620 records and zero invalid cells under the implemented rules.
 - Typed transaction data is implemented with exact amount conversion at scale 100.
 - The read-only Streamlit explorer supports the full local database and a committed demo sample.
@@ -344,5 +344,32 @@ Six additional tests cover sender/recipient matching, combined filters,
 literal SQL-like account IDs, double-count prevention, invalid inputs,
 demo queries without the full database, and changing/clearing the UI field.
 
-The total suite contains 48 tests. Full-data account-query latency has not
+The account-search milestone brought the suite to 48 tests; the investigation harness expands it to 57. Full-data account-query latency has not
 been benchmarked; account filters may scan the database.
+
+
+## AI harness foundation: controlled investigation plans
+
+Implemented in src/investigation_harness.py.
+
+The harness validates a structured plan, permits only account search for the
+requested account, allows one tool-call attempt and at most 50 displayed
+records, and checks account scope and count consistency.
+
+Run the demo:
+
+    python -m src.investigation_harness --account-id C1231006815 --source demo
+
+Final JSON receipts are saved under reports/generated/harness_runs/ and
+excluded from Git. Fraud labels and legacy flags are excluded from evidence.
+Human review is required. Demo history is partial.
+
+This is a deterministic harness foundation. A language model is not connected
+yet, and the harness does not detect fraud. No matches is not a safety verdict.
+Row/call limits do not guarantee query timeouts.
+
+This milestone is accessed through Python and the CLI. The Streamlit
+explorer remains available.
+
+The suite now contains 57 tests.
+See [harness design](docs/investigation_harness.md) and [agent instructions](AGENTS.md).
