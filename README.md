@@ -1,5 +1,9 @@
 # Fraud Investigation Lab
 
+[![Launch interactive dashboard](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://fraud-investigation-lab-ttgscwsrbvy8hh42n6rxe8.streamlit.app/)
+
+**[Launch interactive dashboard →](https://fraud-investigation-lab-ttgscwsrbvy8hh42n6rxe8.streamlit.app/)**
+
 An ongoing portfolio project for exploring suspicious transactions,
 evaluating fraud-alert methods, and supporting evidence-based human review.
 
@@ -7,6 +11,8 @@ Interactive transaction exploration using Streamlit, Python, and SQLite.
 
 
 ## Try the interactive demo
+
+Open **[the hosted dashboard](https://fraud-investigation-lab-ttgscwsrbvy8hh42n6rxe8.streamlit.app/)** in your browser—no local installation is needed. Choose **Demo sample**, then click **Apply filters** to explore the curated transactions.
 
 The repository includes a small demo dataset. You do **not** need the full
 PaySim CSV, a local database, API keys, or an LLM account to try it.
@@ -31,7 +37,7 @@ Then run `.venv\Scripts\python.exe -m pip install -r requirements.txt` and
 Open the local URL printed in Terminal, usually http://127.0.0.1:8501.
 Keep Terminal running while using the app; press **Control+C** to stop it.
 This local address works on your computer. Other visitors must run their own
-copy or use a separately deployed hosted demo.
+copy or open [the hosted dashboard](https://fraud-investigation-lab-ttgscwsrbvy8hh42n6rxe8.streamlit.app/).
 
 ### What to do in the app
 
@@ -92,7 +98,8 @@ Streamlit AppTest check of the committed demo snapshot successfully displayed
 - Typed transaction data is implemented with exact amount conversion at scale 100.
 - The read-only Streamlit explorer supports the full local database and a committed demo sample.
 - The committed demo snapshot runs without the full database. The full-data aggregate check was observed locally; further full-data UI verification and benchmarking remain pending.
-- Duplicate assessment, balance-field precision, detection, analyst review, and deployment remain pending.
+- The hosted dashboard is linked above; full hosted interaction verification remains pending.
+- Duplicate assessment, balance-field precision, detection, and analyst review remain pending.
 - No predictive performance results have been established yet.
 
 ## Problem
@@ -165,7 +172,8 @@ and SQLite structure. REA integration is optional and not implemented yet.
 - [ ] Further full-dataset UI acceptance checks and benchmarking
 - [ ] Scoring and analyst review features
 - [x] Automated ingestion regression tests
-- [ ] Hosted demo and final evaluation report
+- [x] Hosted demo URL added to the README
+- [ ] Hosted interaction acceptance checks and final evaluation report
 
 ## Learning goals
 
@@ -283,15 +291,18 @@ Observed full-data aggregate check: 6,362,620 transactions,
 8,213 dataset fraud labels, and 16 legacy flags.
 This check does not establish model performance.
 
-Hosting status: deployment and live-URL verification are pending.
+Hosted dashboard: [Open the Streamlit demo](https://fraud-investigation-lab-ttgscwsrbvy8hh42n6rxe8.streamlit.app/).
+The deployment URL was supplied by the project owner; independent hosted interaction verification remains pending.
 For Streamlit Community Cloud, select this repository, branch main,
 and entrypoint app.py. A hosted demo does not require the full local
 database because the curated JSON sample is included in the repository.
 
 ## Deploy a shareable Streamlit app
 
-**Status: deployment and a verified live URL are still pending.** The code and
-demo data are available on GitHub; pushing code does not deploy the app.
+**Hosted dashboard:** [Launch interactive dashboard](https://fraud-investigation-lab-ttgscwsrbvy8hh42n6rxe8.streamlit.app/).
+
+Use the link above to try the deployed demo. The following instructions describe
+how to deploy your own copy. Hosted interaction acceptance checks remain pending.
 
 1. Sign in at https://share.streamlit.io/ and connect the GitHub account that
    has access to the repository.
@@ -311,8 +322,8 @@ demo data are available on GitHub; pushing code does not deploy the app.
    With default filters, verify the 2,579 / 116 / 16 snapshot totals.
 6. Verify type and amount filters, record details, empty results, and the
    precision-error message. Check that clearing/changing filters behaves as expected.
-7. Once the hosted app has been checked, add its actual URL to this README and
-   the repository **About → Website** field. Share that URL with visitors.
+7. Share the deployed URL with visitors. This repository's hosted link is already
+   included at the top of the README. For your own copy, use its assigned URL.
 
 The committed `demo/transactions.json` makes demo mode self-contained.
 The full local SQLite databases are excluded from Git and are not available
