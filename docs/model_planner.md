@@ -1,4 +1,4 @@
-# Study notes: an AI planner inside a controlled harness
+# Optional model planner
 
 ## What this milestone adds
 
@@ -11,7 +11,7 @@ Status: implementation and offline tests completed. No live provider request or
 LLM task-performance benchmark has been run for this milestone. API availability
 and the model ID must be checked using your own Anthropic account.
 
-## Understand the three roles
+## Architecture
 
 | Role | Responsibility | It cannot establish |
 |---|---|---|
@@ -45,7 +45,7 @@ Existing investigation statuses still apply. A provider/configuration/response
 failure adds planner_error, with zero evidence-tool calls. A bad but parseable
 plan returns rejected. The error type is recorded without raw provider bodies.
 
-## Boundaries to remember
+## Limitations
 
 - One planner request is separate from the one permitted evidence-tool attempt.
 - max_tokens=256 is an output-token limit, not a fixed dollar budget.
@@ -87,38 +87,7 @@ human_review_required, and planner.usage in the receipt saved under
 reports/generated/harness_runs/. Model ID, usage and request-attempt count are
 recorded when available; this is not a complete provider billing report.
 
-## Add your creativity deliberately
-
-Use docs/my_investigation_design.md to propose one small investigation feature.
-An example is a human-review note for a TRANSFER above a threshold you define.
-The note must describe an observable condition, not declare fraud.
-
-Before coding it:
-1. Define the user, decision, units, time scope and exact rule.
-2. Write a positive example, a negative example and a boundary example.
-3. Specify whether the existing tool returns enough evidence. A full-account
-   total needs an aggregate query, not a sum of the displayed rows.
-4. Separate your business rule from the model prompt and harness permissions.
-5. Implement one feature and run the existing tests plus independent new checks.
-
-For a later experiment, keep the model and reference tasks fixed. Compare an
-unconstrained proposal baseline with the harnessed version in isolated test
-environments. Measure valid task completion, rejected unsafe plans, incorrect
-acceptances, unnecessary rejections, query count, elapsed time and provider usage.
-Use held-out questions and repeated runs. Do not let the model edit the checks
-or reference answers, and report both gains and costs.
-
-## Self-explanation prompts
-
-- Where does a proposed action become an authorized action?
-- Why is JSON parsing different from executing model-written code?
-- How would an account-ID mismatch be detected?
-- Why are planner_error and tool_error different?
-- What can still be wrong after every current check passes?
-- Why is a receipt evidence of execution, not evidence of fraud?
-
 ## References
 
 - https://platform.claude.com/docs/en/api/messages/create
 - https://platform.claude.com/docs/en/api/versioning
-- https://github.com/walkinglabs/learn-harness-engineering

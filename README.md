@@ -374,7 +374,7 @@ explorer remains available.
 The deterministic harness milestone had 57 tests; the optional planner expands the suite to 65.
 See [harness design](docs/investigation_harness.md) and [agent instructions](AGENTS.md).
 
-## Optional model planner and study notes
+## Optional model planner
 
 An opt-in Anthropic Messages API adapter in src/model_planner.py asks a model
 for a JSON retrieval plan. That proposal must pass the existing Python harness.
@@ -392,8 +392,7 @@ All 65 offline tests pass with simulated provider responses. Live provider
 verification and evaluation of model task success remain pending. No model
 performance improvement or fraud-detection accuracy is claimed.
 
-Read [the study notes](docs/model_planner_notes.md) for roles, code flow, output
-interpretation, a manual live-run command, and limitations. Develop your own
-feature using [the creativity worksheet](docs/my_investigation_design.md).
+See [the model planner guide](docs/model_planner.md) for architecture, configuration,
+manual execution, output interpretation, and limitations.
 
 Run existing checks: python -m unittest discover -s tests -t . -v

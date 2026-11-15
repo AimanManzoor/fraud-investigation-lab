@@ -55,5 +55,5 @@ No LLM effectiveness improvement has been measured yet.
 The first-milestone CLI above remains deterministic. A separate opt-in provider
 adapter is now implemented in src/model_planner.py. It uses the same harness and
 adds planner_error when configuration, network, or response parsing fails.
-See model_planner_notes.md for setup and learning notes. Live API verification
+See model_planner.md for setup and technical details. Live API verification
 and measured model performance remain pending. Total suite: 65 offline tests.
