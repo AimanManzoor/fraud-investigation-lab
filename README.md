@@ -65,7 +65,7 @@ After installing dependencies and activating the environment:
 python -m unittest discover -s tests -t . -v
 ```
 
-The suite has 42 tests, using controlled temporary databases. An additional
+The suite has 48 tests, using controlled temporary databases. An additional
 Streamlit AppTest check of the committed demo snapshot successfully displayed
 2,579 / 116 / 16 with no full local database.
 
@@ -87,7 +87,7 @@ Streamlit AppTest check of the committed demo snapshot successfully displayed
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
 - SQLite ingestion and an initial SQL data-quality report are implemented.
-- Forty-two regression tests cover data processing, explorer queries, demo export, and Streamlit interactions on controlled fixtures.
+- Forty-eight regression tests cover data processing, explorer queries, demo export, and Streamlit interactions on controlled fixtures.
 - Full-dataset numeric audit completed: 6,362,620 records and zero invalid cells under the implemented rules.
 - Typed transaction data is implemented with exact amount conversion at scale 100.
 - The read-only Streamlit explorer supports the full local database and a committed demo sample.
@@ -324,3 +324,25 @@ production performance claims, or analyst decision storage.
 
 Deployment reference:
 [Streamlit Community Cloud documentation](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy).
+
+
+## Account-ID search
+
+Enter an exact Account ID and click Apply filters to find transactions where
+that account is either the sender or recipient. Leave it blank to include all
+accounts. Matching is case-sensitive and combines with the other filters.
+A transaction matching both sides is counted once.
+
+SQL binds the account ID as a parameter. Values are not inserted into SQL text.
+No database rebuild is required. The feature works with full local data and
+the curated demo, using the same query layer.
+
+Demo results show only account activity present in that subset, not the
+account's complete history.
+
+Six additional tests cover sender/recipient matching, combined filters,
+literal SQL-like account IDs, double-count prevention, invalid inputs,
+demo queries without the full database, and changing/clearing the UI field.
+
+The total suite contains 48 tests. Full-data account-query latency has not
+been benchmarked; account filters may scan the database.

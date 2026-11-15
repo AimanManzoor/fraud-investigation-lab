@@ -64,6 +64,10 @@ def main(database=None):
             maximum_amount = st.text_input("Maximum amount (optional)")
             fraud = st.selectbox("Dataset fraud label", ("All", "0", "1"))
             legacy = st.selectbox("Legacy rule flag", ("All", "0", "1"))
+            account_id = st.text_input(
+                "Account ID (optional)", max_chars=128,
+                help="Exact, case-sensitive ID; matches sender or recipient.",
+            )
 
         submitted = st.form_submit_button("Apply filters")
 
@@ -82,6 +86,7 @@ def main(database=None):
                     amount_max=maximum_amount.strip() or None,
                     fraud=None if fraud == "All" else int(fraud),
                     legacy=None if legacy == "All" else int(legacy),
+                    account_id=account_id.strip() or None,
                 )
             st.session_state["explorer_result"] = result
 

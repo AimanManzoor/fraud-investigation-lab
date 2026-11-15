@@ -15,7 +15,8 @@ def format_amount(units):
 
 
 def explore(database, *, kind=None, step_min=1, step_max=None,
-            amount_min="0", amount_max=None, fraud=None, legacy=None, limit=200):
+            amount_min="0", amount_max=None, fraud=None, legacy=None, limit=200,
+            account_id=None):
     for value in (step_min, step_max):
         if value is not None and (
             type(value) is not int or not 1 <= value <= MAX_INTEGER
@@ -43,6 +44,12 @@ def explore(database, *, kind=None, step_min=1, step_max=None,
     if maximum is not None and maximum < minimum:
         raise ValueError("Maximum amount must be at least the minimum amount.")
 
+    if account_id is not None and (
+        not isinstance(account_id, str) or not account_id.strip()
+        or len(account_id) > 128
+    ):
+        raise ValueError("Account ID must be nonblank text of at most 128 characters.")
+
     clauses = ["step >= ?", "amount_minor >= ?"]
     parameters = [step_min, minimum]
 
@@ -56,6 +63,10 @@ def explore(database, *, kind=None, step_min=1, step_max=None,
         if value is not None:
             clauses.append(clause)
             parameters.append(value)
+
+    if account_id is not None:
+        clauses.append("(origin_id = ? OR destination_id = ?)")
+        parameters.extend([account_id, account_id])
 
     where = " WHERE " + " AND ".join(clauses)
     path = Path(database).resolve()
