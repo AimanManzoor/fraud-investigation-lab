@@ -1,4 +1,4 @@
-"""Bounded execution of proposed investigation plans; no LLM is connected yet."""
+"""Bounded execution of proposed plans; optional model adapter: src/model_planner.py."""
 import argparse
 import json
 import sqlite3

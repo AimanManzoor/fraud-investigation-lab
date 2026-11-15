@@ -3,7 +3,7 @@
 The harness validates a proposed plan, executes one bounded read-only account
 search, checks returned evidence, and saves a final receipt.
 
-No LLM is connected. The CLI creates a deterministic example plan unless the
+The original CLI does not call a model. It creates a deterministic plan unless the
 caller supplies --plan-json. This is the control layer for a future agent.
 
 Allowed plan:
@@ -45,7 +45,15 @@ Nine additional tests bring the suite to 57. They cover plan rejection,
 account scope, tool limits, source failures, injected evidence errors,
 label exclusion, source preservation, and saved receipts.
 
-Next: connect an optional model to propose this schema, run its proposals
-through the same checks, and measure results against a baseline.
+The original milestone left model integration as a follow-up. An optional
+planner adapter is now implemented; live verification and comparisons remain pending.
 The model must not modify the checks or their reference answers.
 No LLM effectiveness improvement has been measured yet.
+
+## Optional planner follow-up
+
+The first-milestone CLI above remains deterministic. A separate opt-in provider
+adapter is now implemented in src/model_planner.py. It uses the same harness and
+adds planner_error when configuration, network, or response parsing fails.
+See model_planner_notes.md for setup and learning notes. Live API verification
+and measured model performance remain pending. Total suite: 65 offline tests.

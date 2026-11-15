@@ -65,7 +65,7 @@ After installing dependencies and activating the environment:
 python -m unittest discover -s tests -t . -v
 ```
 
-The suite has 57 tests, using controlled temporary databases. An additional
+The suite has 65 tests, using controlled temporary databases. An additional
 Streamlit AppTest check of the committed demo snapshot successfully displayed
 2,579 / 116 / 16 with no full local database.
 
@@ -87,7 +87,7 @@ Streamlit AppTest check of the committed demo snapshot successfully displayed
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
 - SQLite ingestion and an initial SQL data-quality report are implemented.
-- Fifty-seven regression tests cover data processing, explorer queries, demo export, and Streamlit interactions on controlled fixtures.
+- Sixty-five regression tests cover data processing, explorer queries, demo export, and Streamlit interactions on controlled fixtures.
 - Full-dataset numeric audit completed: 6,362,620 records and zero invalid cells under the implemented rules.
 - Typed transaction data is implemented with exact amount conversion at scale 100.
 - The read-only Streamlit explorer supports the full local database and a committed demo sample.
@@ -364,12 +364,36 @@ Final JSON receipts are saved under reports/generated/harness_runs/ and
 excluded from Git. Fraud labels and legacy flags are excluded from evidence.
 Human review is required. Demo history is partial.
 
-This is a deterministic harness foundation. A language model is not connected
-yet, and the harness does not detect fraud. No matches is not a safety verdict.
+This is a deterministic harness foundation. The original CLI uses a deterministic plan. An optional model-planner adapter
+is now available separately; the harness does not detect fraud. No matches is not a safety verdict.
 Row/call limits do not guarantee query timeouts.
 
 This milestone is accessed through Python and the CLI. The Streamlit
 explorer remains available.
 
-The suite now contains 57 tests.
+The deterministic harness milestone had 57 tests; the optional planner expands the suite to 65.
 See [harness design](docs/investigation_harness.md) and [agent instructions](AGENTS.md).
+
+## Optional model planner and study notes
+
+An opt-in Anthropic Messages API adapter in src/model_planner.py asks a model
+for a JSON retrieval plan. That proposal must pass the existing Python harness.
+No provider request runs automatically in Streamlit or in the tests. Model IDs
+and API keys are configured by the caller; live use requires --live and may
+incur provider charges. No new Python dependencies are needed.
+
+The adapter permits one provider-request attempt, caps output tokens at 256,
+uses a 30-second socket timeout, rejects redirects and malformed/truncated
+responses, and makes no automatic retry. These limits do not form a fixed-dollar
+budget or a whole-pipeline execution deadline. Database rows and dataset labels
+are not supplied in the planner request by the application.
+
+All 65 offline tests pass with simulated provider responses. Live provider
+verification and evaluation of model task success remain pending. No model
+performance improvement or fraud-detection accuracy is claimed.
+
+Read [the study notes](docs/model_planner_notes.md) for roles, code flow, output
+interpretation, a manual live-run command, and limitations. Develop your own
+feature using [the creativity worksheet](docs/my_investigation_design.md).
+
+Run existing checks: python -m unittest discover -s tests -t . -v
