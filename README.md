@@ -46,6 +46,7 @@ copy or open [the hosted dashboard](https://fraud-investigation-lab-ttgscwsrbvy8
 3. Filter transaction type, simulation time step, amount, dataset fraud label,
    or legacy rule flag, then click **Apply filters** again.
 4. Select a displayed **Record ID** beneath the table to inspect its details.
+5. Independently, expand **Evaluate the recorded legacy alert flag** and click **Evaluate selected source** for confusion counts and rates across the whole source. Explorer filters do not apply to this evaluation.
 
 The included sample has **2,579 transactions**, **116 dataset fraud labels**,
 and **16 legacy flags**. These default totals apply to the included snapshot.
@@ -71,7 +72,7 @@ After installing dependencies and activating the environment:
 python -m unittest discover -s tests -t . -v
 ```
 
-The suite has 65 tests, using controlled temporary databases. An additional
+The suite has 73 tests, using controlled temporary databases. An additional
 Streamlit AppTest check of the committed demo snapshot successfully displayed
 2,579 / 116 / 16 with no full local database.
 
@@ -88,12 +89,35 @@ Streamlit AppTest check of the committed demo snapshot successfully displayed
 - **No matching transactions:** broaden the filters. Demo results reflect
   the curated sample, not all 6.36 million source records.
 
+## Recorded legacy-alert evaluation milestone
+
+The dashboard now compares the recorded legacy flag with the synthetic dataset
+fraud label. It reports true/false positives and negatives, precision, recall,
+false-positive rate, and alert rate, with a downloadable JSON report.
+
+This evaluation covers the **entire selected source**, not the first 200 rows
+or the explorer's filters. Undefined rates show N/A. Missing sources and invalid
+labels stop evaluation. Source data is preserved.
+
+The committed curated demo has TP=16, FP=0, FN=100, TN=2,463: precision 100% and
+recall 13.79% **within that sample only**. Its enriched selection prevents treating
+these rates as population or full-dataset performance. This is evaluation of an
+existing recorded flag, not a new fraud detector or ML performance result.
+
+```bash
+.venv/bin/python -m src.alert_evaluation --source demo
+```
+
+Use `--source full` only with your existing local typed database. Full-dataset
+evaluation was not performed for this milestone. All 73 tests passed locally.
+See [evaluation definitions, observed sample results, and limitations](docs/legacy_alert_evaluation.md).
+
 ## Current status
 
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
 - SQLite ingestion and an initial SQL data-quality report are implemented.
-- Sixty-five regression tests cover data processing, explorer queries, demo export, and Streamlit interactions on controlled fixtures.
+- Seventy-three regression tests cover data processing, explorer queries, demo export, recorded-flag evaluation, and Streamlit interactions on controlled fixtures.
 - Full-dataset numeric audit completed: 6,362,620 records and zero invalid cells under the implemented rules.
 - Typed transaction data is implemented with exact amount conversion at scale 100.
 - The read-only Streamlit explorer supports the full local database and a committed demo sample.
@@ -164,7 +188,8 @@ and SQLite structure. REA integration is optional and not implemented yet.
 - [x] Initial SQL quality report and full numeric audit
 - [x] Exact amount conversion and reconciled typed transaction layer
 - [ ] Duplicate assessment and balance-field audit
-- [ ] Baseline alert rules
+- [x] Recorded legacy-flag evaluation with scoped confusion counts and rates
+- [ ] New baseline alert rules
 - [ ] ML baseline and chronological evaluation
 - [x] Local read-only Streamlit explorer tested on controlled fixtures
 - [x] Committed demo sample and source switching
@@ -399,7 +424,7 @@ responses, and makes no automatic retry. These limits do not form a fixed-dollar
 budget or a whole-pipeline execution deadline. Database rows and dataset labels
 are not supplied in the planner request by the application.
 
-All 65 offline tests pass with simulated provider responses. Live provider
+All 73 offline tests passed locally; provider tests use simulated responses. Live provider
 verification and evaluation of model task success remain pending. No model
 performance improvement or fraud-detection accuracy is claimed.
 

@@ -1,11 +1,13 @@
 """Local transaction exploration; no prediction or review writes."""
 import sqlite3
+import json
 from pathlib import Path
 
 import streamlit as st
 
 from src.explorer import TYPES, explore
 from src.demo import NOTICE, explore_demo
+from src.alert_evaluation import evaluate_source
 
 DEFAULT_DATABASE = Path(__file__).resolve().parent / "data/fraud_typed.db"
 
@@ -37,6 +39,7 @@ def main(database=None):
     )
     if st.session_state.get("explorer_source") != source_key:
         st.session_state.pop("explorer_result", None)
+        st.session_state.pop("legacy_evaluation", None)
         st.session_state["explorer_source"] = source_key
 
 
@@ -70,6 +73,32 @@ def main(database=None):
             )
 
         submitted = st.form_submit_button("Apply filters")
+
+    with st.expander("Evaluate the recorded legacy alert flag", expanded=False):
+        st.caption('Compare legacy_flag with the synthetic is_fraud label across the ENTIRE selected source. Transaction filters, account search, and the 200-row display limit do not apply.')
+        st.caption('This measures an existing recorded flag; it does not train a model, produce new alerts, or establish causation.')
+        if st.button('Evaluate selected source', key='evaluate_legacy'):
+            st.session_state.pop('legacy_evaluation', None)
+            try:
+                st.session_state['legacy_evaluation'] = evaluate_source(
+                    database, source_kind='demo' if query is explore_demo else 'full')
+            except (ValueError, FileNotFoundError, sqlite3.Error):
+                st.error('Evaluation unavailable. Check the selected source and its binary label/flag fields.')
+        evaluation = st.session_state.get('legacy_evaluation')
+        if evaluation is not None:
+            st.warning(evaluation['notice'])
+            st.caption(f"Evaluated {evaluation['total_records']:,} records from {evaluation['source_kind']} source. Undefined rates display N/A; JSON uses null.")
+            columns = st.columns(4)
+            for column, (name, value) in zip(columns, evaluation['metrics'].items()):
+                column.metric(name.replace('_', ' ').title(), 'N/A' if value is None else f'{value:.2%}')
+            st.dataframe([
+                {'Dataset label': 'Fraud = 1', 'Flag = 1 (alert)': evaluation['confusion_counts']['true_positives'],
+                 'Flag = 0 (no alert)': evaluation['confusion_counts']['false_negatives']},
+                {'Dataset label': 'Fraud = 0', 'Flag = 1 (alert)': evaluation['confusion_counts']['false_positives'],
+                 'Flag = 0 (no alert)': evaluation['confusion_counts']['true_negatives']},
+            ], hide_index=True)
+            st.download_button('Download legacy-flag evaluation', json.dumps(evaluation, indent=2),
+                               file_name=f"legacy_evaluation_{evaluation['source_kind']}.json", mime='application/json')
 
     if submitted:
         try:

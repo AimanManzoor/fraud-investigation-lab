@@ -2,7 +2,7 @@
 import json
 import sqlite3
 import tempfile
-from contextlib import closing
+from contextlib import closing, contextmanager
 from pathlib import Path
 
 from src.explorer import TYPES, explore
@@ -75,7 +75,9 @@ def export_demo(database, output):
     }
 
 
-def explore_demo(sample, **filters):
+@contextmanager
+def demo_database(sample):
+    """Validate the curated snapshot and expose a disposable SQLite database."""
     path = Path(sample)
     if not path.is_file():
         raise FileNotFoundError("Demo sample missing: demo/transactions.json")
@@ -127,6 +129,11 @@ def explore_demo(sample, **filters):
                 connection.executemany(
                     "INSERT INTO transactions VALUES (?,?,?,?,?,?,?,?)", rows
                 )
+        yield database
+
+
+def explore_demo(sample, **filters):
+    with demo_database(sample) as database:
         return explore(database, **filters)
 
 
