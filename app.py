@@ -131,6 +131,12 @@ def main(database=None):
             st.download_button('Download rule comparison', json.dumps(comparison, indent=2),
                                file_name=f"candidate_comparison_{comparison['source_kind']}.json", mime='application/json')
 
+    with st.expander('Chronological threshold evaluation protocol', expanded=False):
+        st.write('Choose an alert threshold on earlier simulation steps under a maximum-alerts-per-step capacity, save the selection, then evaluate that frozen choice on later steps with a separate local command.')
+        st.caption('This protocol requires the full local typed database. It is not run on the enriched demo or automatically by the hosted app. A simulation step is an hour, not a calendar day.')
+        st.write('The saved protocol records the cutoff, candidate thresholds, capacity and selection outcomes. Later evaluation reports any capacity breach; earlier-period feasibility does not guarantee later capacity.')
+        st.caption('See docs/temporal_rule_evaluation.md in the repository for the two-stage commands and limitations.')
+
     if submitted:
         try:
             with st.spinner("Querying the local database..."):

@@ -72,7 +72,7 @@ After installing dependencies and activating the environment:
 python -m unittest discover -s tests -t . -v
 ```
 
-The suite has 83 tests, using controlled temporary databases. An additional
+The suite has 97 tests, using controlled temporary databases. An additional
 Streamlit AppTest check of the committed demo snapshot successfully displayed
 2,579 / 116 / 16 with no full local database.
 
@@ -138,12 +138,35 @@ These sample-only results do not establish better or generalizable performance.
 All **83 tests** passed locally. No model training or new full-dataset comparison
 was performed. See [candidate rule, test cases, and evaluation limits](docs/candidate_alert_rule.md).
 
+## Chronological evaluation protocol milestone
+
+A new local CLI separates **earlier-period threshold selection** from a separate
+**frozen later-period evaluation**. The caller prespecifies a cutoff, a grid of
+amount thresholds, and maximum alerts per simulation hour. All rows from one
+time step stay together.
+
+Among capacity-feasible candidates, selection maximizes earlier true positives,
+then minimizes false positives, then prefers the higher threshold. No feasible
+candidate or no selection positives produces no chosen threshold. Selection does
+not query later labels. The later command evaluates the saved choice and legacy
+flag, including any later capacity breaches, without retuning.
+
+The protocol refuses enriched-demo selection. Its files remain local and do not
+change the hosted app's threshold. Source changes and altered protocol files
+are checked, and existing report files are preserved.
+
+**All 97 tests passed locally on controlled fixtures. No full-dataset temporal
+selection/evaluation was run for this milestone.**
+
+Read [the temporal protocol and two-stage commands](docs/temporal_rule_evaluation.md)
+before choosing parameters or opening held-out results.
+
 ## Current status
 
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
 - SQLite ingestion and an initial SQL data-quality report are implemented.
-- Eighty-three regression tests cover data processing, explorer queries, demo export, recorded-flag evaluation, and Streamlit interactions on controlled fixtures.
+- Ninety-seven regression tests cover data processing, explorer queries, demo export, recorded-flag evaluation, and Streamlit interactions on controlled fixtures.
 - Full-dataset numeric audit completed: 6,362,620 records and zero invalid cells under the implemented rules.
 - Typed transaction data is implemented with exact amount conversion at scale 100.
 - The read-only Streamlit explorer supports the full local database and a committed demo sample.
@@ -216,7 +239,8 @@ and SQLite structure. REA integration is optional and not implemented yet.
 - [ ] Duplicate assessment and balance-field audit
 - [x] Recorded legacy-flag evaluation with scoped confusion counts and rates
 - [x] Experimental TRANSFER + amount rule with exact thresholds and side-by-side legacy comparison
-- [ ] Chronological candidate-rule selection and held-out evaluation
+- [x] Local two-stage chronological selection/frozen evaluation protocol with capacity constraints
+- [ ] Execute and review a prespecified full-source temporal experiment; results remain pending
 - [ ] ML baseline and chronological evaluation
 - [x] Local read-only Streamlit explorer tested on controlled fixtures
 - [x] Committed demo sample and source switching
@@ -452,7 +476,7 @@ responses, and makes no automatic retry. These limits do not form a fixed-dollar
 budget or a whole-pipeline execution deadline. Database rows and dataset labels
 are not supplied in the planner request by the application.
 
-All 83 offline tests passed locally; provider tests use simulated responses. Live provider
+All 97 offline tests passed locally; provider tests use simulated responses. Live provider
 verification and evaluation of model task success remain pending. No model
 performance improvement or fraud-detection accuracy is claimed.
 

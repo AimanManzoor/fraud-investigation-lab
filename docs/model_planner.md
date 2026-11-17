@@ -69,7 +69,7 @@ Offline checks (no API key, network request, or charge):
 
     python -m unittest discover -s tests -t . -v
 
-Current suite size: 83 tests. Eight added tests use simulated provider responses.
+Current suite size: 97 tests. Eight added tests use simulated provider responses.
 These test software behavior, not whether a live model chooses good plans.
 
 The live CLI is optional. Choose a currently available model ID from your own
