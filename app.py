@@ -8,6 +8,7 @@ import streamlit as st
 from src.explorer import TYPES, explore
 from src.demo import NOTICE, explore_demo
 from src.alert_evaluation import evaluate_source
+from src.candidate_rule import DEFAULT_THRESHOLD, compare_source
 
 DEFAULT_DATABASE = Path(__file__).resolve().parent / "data/fraud_typed.db"
 
@@ -40,12 +41,13 @@ def main(database=None):
     if st.session_state.get("explorer_source") != source_key:
         st.session_state.pop("explorer_result", None)
         st.session_state.pop("legacy_evaluation", None)
+        st.session_state.pop("candidate_comparison", None)
         st.session_state["explorer_source"] = source_key
 
 
     st.info(
         "Dataset fraud labels and legacy rule flags are separate historical fields. "
-        "This prototype does not predict fraud or calculate a risk score."
+        "Experimental rules create review alerts, not fraud verdicts or trained risk scores."
     )
     st.caption(
         "Amounts use dataset units, with exact scale-100 storage. "
@@ -99,6 +101,35 @@ def main(database=None):
             ], hide_index=True)
             st.download_button('Download legacy-flag evaluation', json.dumps(evaluation, indent=2),
                                file_name=f"legacy_evaluation_{evaluation['source_kind']}.json", mime='application/json')
+
+    with st.expander('Compare an experimental alert rule', expanded=False):
+        st.caption('Candidate: TRANSFER with amount at or above your threshold. Amounts use dataset units, not an assumed currency. The default 200,000.00 is a manual experimental choice, not a tuned operating threshold.')
+        rule_threshold = st.text_input('Candidate amount threshold', value=DEFAULT_THRESHOLD, key='rule_threshold')
+        comparison_key = (source_key, rule_threshold)
+        st.caption('Both methods are evaluated on the entire selected source in one read-only snapshot. Explorer filters and the displayed table do not apply. Labels and legacy flags are used only for evaluation, never as candidate inputs.')
+        if st.button('Compare candidate and legacy', key='compare_candidate'):
+            st.session_state.pop('candidate_comparison', None)
+            try:
+                comparison = compare_source(database,
+                    source_kind='demo' if query is explore_demo else 'full', threshold=rule_threshold)
+                st.session_state['candidate_comparison'] = (comparison_key, comparison)
+            except (ValueError, FileNotFoundError, sqlite3.Error):
+                st.error('Comparison unavailable. Check the source and enter a non-negative amount exactly representable at scale 100.')
+        stored_comparison = st.session_state.get('candidate_comparison')
+        if stored_comparison is not None and stored_comparison[0] == comparison_key:
+            comparison = stored_comparison[1]
+            st.warning(comparison['notice'])
+            st.caption(f"Compared {comparison['total_records']:,} records. Trying thresholds on these labels is exploration, not held-out validation; no best rule is selected.")
+            comparison_rows = []
+            for label, key in [('Experimental TRANSFER + amount', 'candidate'), ('Recorded legacy flag', 'legacy')]:
+                report = comparison[key]
+                row = {'Method': label, 'Alerts': report['flagged_records'], **report['confusion_counts']}
+                row.update({name: 'N/A' if value is None else f'{value:.2%}'
+                            for name, value in report['metrics'].items()})
+                comparison_rows.append(row)
+            st.dataframe(comparison_rows, hide_index=True)
+            st.download_button('Download rule comparison', json.dumps(comparison, indent=2),
+                               file_name=f"candidate_comparison_{comparison['source_kind']}.json", mime='application/json')
 
     if submitted:
         try:

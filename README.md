@@ -72,7 +72,7 @@ After installing dependencies and activating the environment:
 python -m unittest discover -s tests -t . -v
 ```
 
-The suite has 73 tests, using controlled temporary databases. An additional
+The suite has 83 tests, using controlled temporary databases. An additional
 Streamlit AppTest check of the committed demo snapshot successfully displayed
 2,579 / 116 / 16 with no full local database.
 
@@ -112,19 +112,45 @@ Use `--source full` only with your existing local typed database. Full-dataset
 evaluation was not performed for this milestone. All 73 tests passed locally.
 See [evaluation definitions, observed sample results, and limitations](docs/legacy_alert_evaluation.md).
 
+## Experimental candidate-rule milestone
+
+The dashboard now compares a transparent candidate rule with the recorded legacy
+flag: **TRANSFER and amount >= selected threshold**. The default 200,000.00
+dataset units is a manual experimental choice, not a tuned threshold.
+
+Both methods use the entire selected source in the same read-only snapshot.
+Labels and legacy flags do not determine candidate alerts. Exact amount
+conversion prevents silent rounding at the threshold boundary.
+
+Open **Compare an experimental alert rule**, enter a threshold, then click
+**Compare candidate and legacy**. Changing the source or threshold hides the
+old comparison. Download the report to retain the rule version and scope.
+
+On the curated demo at the default threshold, the candidate has 31 true positives,
+255 false positives, 85 false negatives, and 2,208 true negatives. It finds more
+labeled cases than the legacy flag but creates substantially more false alerts.
+These sample-only results do not establish better or generalizable performance.
+
+```bash
+.venv/bin/python -m src.candidate_rule --source demo --threshold 200000.00
+```
+
+All **83 tests** passed locally. No model training or new full-dataset comparison
+was performed. See [candidate rule, test cases, and evaluation limits](docs/candidate_alert_rule.md).
+
 ## Current status
 
 - PaySim CSV downloaded locally.
 - Dataset header checked: all 11 expected columns are present.
 - SQLite ingestion and an initial SQL data-quality report are implemented.
-- Seventy-three regression tests cover data processing, explorer queries, demo export, recorded-flag evaluation, and Streamlit interactions on controlled fixtures.
+- Eighty-three regression tests cover data processing, explorer queries, demo export, recorded-flag evaluation, and Streamlit interactions on controlled fixtures.
 - Full-dataset numeric audit completed: 6,362,620 records and zero invalid cells under the implemented rules.
 - Typed transaction data is implemented with exact amount conversion at scale 100.
 - The read-only Streamlit explorer supports the full local database and a committed demo sample.
 - The committed demo snapshot runs without the full database. The full-data aggregate check was observed locally; further full-data UI verification and benchmarking remain pending.
 - The hosted dashboard is linked above; full hosted interaction verification remains pending.
 - Duplicate assessment, balance-field precision, detection, and analyst review remain pending.
-- No predictive performance results have been established yet.
+- No held-out or production predictive performance results have been established. Recorded-flag and candidate-rule comparisons describe the selected synthetic source only.
 
 ## Problem
 
@@ -189,7 +215,8 @@ and SQLite structure. REA integration is optional and not implemented yet.
 - [x] Exact amount conversion and reconciled typed transaction layer
 - [ ] Duplicate assessment and balance-field audit
 - [x] Recorded legacy-flag evaluation with scoped confusion counts and rates
-- [ ] New baseline alert rules
+- [x] Experimental TRANSFER + amount rule with exact thresholds and side-by-side legacy comparison
+- [ ] Chronological candidate-rule selection and held-out evaluation
 - [ ] ML baseline and chronological evaluation
 - [x] Local read-only Streamlit explorer tested on controlled fixtures
 - [x] Committed demo sample and source switching
@@ -284,7 +311,8 @@ Validation:
 - Aggregate counts scan matching records; bounded display does not guarantee
   fast queries over the full dataset.
 
-This prototype does not predict fraud, calculate risk scores, store analyst
+The experimental candidate rule proposes review alerts; it does not establish fraud.
+This prototype does not calculate trained risk scores, store analyst
 decisions, or implement an autonomous agent. Dataset fraud labels are
 simulated outcomes; the legacy rule flag is a separate historical field.
 Raw data and local databases remain excluded from Git.
@@ -424,7 +452,7 @@ responses, and makes no automatic retry. These limits do not form a fixed-dollar
 budget or a whole-pipeline execution deadline. Database rows and dataset labels
 are not supplied in the planner request by the application.
 
-All 73 offline tests passed locally; provider tests use simulated responses. Live provider
+All 83 offline tests passed locally; provider tests use simulated responses. Live provider
 verification and evaluation of model task success remain pending. No model
 performance improvement or fraud-detection accuracy is claimed.
 

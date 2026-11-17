@@ -30,10 +30,14 @@ def evaluate_database(database, *, source_kind):
                     label not in (0, 1) or flag not in (0, 1)):
                 raise ValueError('Evaluation requires complete binary labels and flags.')
             counts[cells[label, flag]] += count
+    return summarize_counts(counts, source_kind=source_kind)
+
+
+def summarize_counts(counts, *, source_kind, evaluation='recorded_legacy_flag_vs_synthetic_labels'):
     tp, fp, fn, tn = (counts[k] for k in
                       ('true_positives', 'false_positives', 'false_negatives', 'true_negatives'))
     total = tp+fp+fn+tn
-    return {'evaluation': 'recorded_legacy_flag_vs_synthetic_labels',
+    return {'evaluation': evaluation,
             'source_kind': source_kind, 'synthetic_data': True,
             'scope': 'entire selected source; explorer filters and display limits do not apply',
             'total_records': total, 'labeled_fraud_records': tp+fn,

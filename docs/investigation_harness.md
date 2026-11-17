@@ -56,4 +56,4 @@ The first-milestone CLI above remains deterministic. A separate opt-in provider
 adapter is now implemented in src/model_planner.py. It uses the same harness and
 adds planner_error when configuration, network, or response parsing fails.
 See model_planner.md for setup and technical details. Live API verification
-and measured model performance remain pending. Total suite: 65 offline tests.
+and measured model performance remain pending. Current full suite: 83 offline tests.
